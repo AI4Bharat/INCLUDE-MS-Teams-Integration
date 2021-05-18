@@ -16,4 +16,17 @@
     </PackageReference>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Scripts\ngrok.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ngrok.yml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Scripts\ngrok.yml">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ngrok.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 </Project>

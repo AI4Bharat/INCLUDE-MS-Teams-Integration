@@ -19,6 +19,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{BDDB7CB7-3
 		docs\debug.md = docs\debug.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{6739FD34-1509-40C5-B5C9-8CD7E22CEC55}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\ngrok.yml = scripts\ngrok.yml
+		scripts\README.md = scripts\README.md
+		runngrok.bat = runngrok.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
