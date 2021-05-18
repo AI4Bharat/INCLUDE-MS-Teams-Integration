@@ -1,0 +1,11 @@
+authtoken: YOUR_AUTH_TOKEN
+tunnels:
+    signaling:
+        addr: "https://localhost:9441"
+        proto: http
+        hostname: "davidmcg.ngrok.io"
+        host_header: "localhost:9441"
+    media: 
+        addr: 8445
+        proto: tcp
+        hostname: "davidmcg.ngrok.io"
