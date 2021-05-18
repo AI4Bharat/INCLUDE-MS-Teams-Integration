@@ -70,4 +70,32 @@ Steps
         "PlaceCallEndpointUrl": https://graph.microsoft.com/v1.0
      }
     ```
-1.	Run the project - make sure you have the startup as the AI4Bharat.ISLBot.Services (run in Kestrel not IIS Express) 
+### Run and debug
+
+1. Run the project - make sure you have the startup as the AI4Bharat.ISLBot.Services (run in Kestrel not IIS Express)
+   2. Check that the debug window for Visual Studio doesnt contain errors
+   2. Check on ngrok that messages are being tunnelled correctly (no errors)
+3. Choose or create a Microsoft teams meeting and find the URL
+3. You will need postman (or equivilent) to add the bot to the meeting
+
+    https://YOUR_DNS.ngrok.io/joinCall
+
+    raw body 
+    ```
+    {
+    "JoinURL": "https://teams.microsoft.com/l/meetup-join/19%3ameeting_YTc2MjQ5NmYtN2ViMS00NGZkLWE1OGQtM2Q4MjFjNmExNThi%40thread.v2/0?context=%7b%22Tid%22%3a%2210d31b95-66a1-42a1-a9b7-f4328f3d9fd0%22%2c%22Oid%22%3a%22bde8fb0e-00ae-40a0-8e58-feaef1537a00%22%7d"
+    }
+    ```
+
+    Make a note of the logs file in the resposne
+
+4. Switching on your video in the Microsoft Teams Meeting (with the bot observing) will start the stream
+
+5. Observe the video being recorded in the log file (https://YOUR_DNS.ngrok.io/logs/YOUR_LOG_FILE)
+
+### Cleanup
+
+1. Delete the bot
+
+
+POST DELETE to http://YOUR_DNS.ngrok.ui/calls/YOUR_CALL_ID
