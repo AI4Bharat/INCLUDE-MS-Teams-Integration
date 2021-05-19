@@ -27,6 +27,11 @@ using System.Collections.Generic;
 using AI4Bharat.ISLBot.Model.Constants;
 using System.Linq;
 using AI4Bharat.ISLBot.Services.Logging;
+using Microsoft.Graph.Communications.Common.Transport;
+using Microsoft.Graph.Communications.Client.Transport;
+using System.Net.Http;
+using Microsoft.Graph.Communications.Client.Authentication;
+using Microsoft.Graph.Communications.Core.Serialization;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -48,6 +53,20 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// The settings
         /// </summary>
         private readonly AzureSettings _settings;
+
+
+        public IGraphClient GraphApiClient { get; }
+
+
+        /// <summary>
+        /// Gets the authentication provider.
+        /// </summary>
+        private IRequestAuthenticationProvider AuthenticationProvider { get; }
+
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        private CommsSerializer Serializer { get; }
 
         /// <summary>
         /// Gets the collection of call handlers.
@@ -82,6 +101,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             _logger = logger;
             _settings = settings.Value;
+
 
         }
 

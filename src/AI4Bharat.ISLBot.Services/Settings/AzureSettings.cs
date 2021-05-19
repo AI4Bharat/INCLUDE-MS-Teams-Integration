@@ -101,6 +101,9 @@ namespace AI4Bharat.ISLBot.Service.Settings
         public string MediaServiceFQDN { get; set; }
 
 
+        public string SpeechSubscriptionKey { get; set; }
+        public string SpeechRegion { get; set; }
+
         /// <summary>
         /// Initializes this instance.
         /// </summary>

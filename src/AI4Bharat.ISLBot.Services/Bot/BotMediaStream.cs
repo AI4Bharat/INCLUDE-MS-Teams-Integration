@@ -1,4 +1,4 @@
-// <copyright file="BotMediaStream.cs" company="Microsoft Corporation">
+﻿// <copyright file="BotMediaStream.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 // </copyright>
@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Threading;
+using Microsoft.Graph.Communications.Common.Transport;
+using Microsoft.Graph;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -311,9 +313,18 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// <param name="e">
         /// The video media received arguments.
         /// </param>
-        private void OnVideoMediaReceived(object sender, VideoMediaReceivedEventArgs e)
+        private async void OnVideoMediaReceived(object sender, VideoMediaReceivedEventArgs e)
         {
             this.logger.Info($"[VideoMediaReceivedEventArgs(Data=<{e.Buffer.Data.ToString()}>, Length={e.Buffer.Length}, Timestamp={e.Buffer.Timestamp}, Width={e.Buffer.VideoFormat.Width}, Height={e.Buffer.VideoFormat.Height}, ColorFormat={e.Buffer.VideoFormat.VideoColorFormat}, FrameRate={e.Buffer.VideoFormat.FrameRate} MediaSourceId={e.Buffer.MediaSourceId})]");
+            
+            var speechHelper = new SpeechHelper();
+            // requires AWAIT in method
+            var audioArray = await speechHelper.CreateSpeechByteArray(settings.speechSubscriptionKey, settings.speechRegion, "test");
+            var sendBuffer = await speechHelper.CreateAudioMediaBuffer(DateTime.Now.Ticks,  audioArray);
+
+            // this sends it from the bot....!!!!
+            SendAudio(sendBuffer);
+
             e.Buffer.Dispose();
         }
 
