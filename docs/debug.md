@@ -80,10 +80,10 @@ Steps
 
     https://YOUR_DNS.ngrok.io/joinCall
 
-    raw body 
+    raw body exmple
     ```
     {
-    "JoinURL": "https://teams.microsoft.com/l/meetup-join/19%3ameeting_YTc2MjQ5NmYtN2ViMS00NGZkLWE1OGQtM2Q4MjFjNmExNThi%40thread.v2/0?context=%7b%22Tid%22%3a%2210d31b95-66a1-42a1-a9b7-f4328f3d9fd0%22%2c%22Oid%22%3a%22bde8fb0e-00ae-40a0-8e58-feaef1537a00%22%7d"
+    "JoinURL": "https://teams.microsoft.com/l/meetup-join/YOUR_MEETING_ID"
     }
     ```
 
