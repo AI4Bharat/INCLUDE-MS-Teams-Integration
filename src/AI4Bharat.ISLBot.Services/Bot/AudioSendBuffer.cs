@@ -16,7 +16,7 @@ namespace AI4Bharat.ISLBot.Services
     /// <summary>
     /// Creates an Audio Buffer for Send and also implements Dispose
     /// </summary>
-    class AudioSendBuffer : AudioMediaBuffer
+    public class AudioSendBuffer : AudioMediaBuffer
     {
         private int _disposed;
 
@@ -37,3 +37,4 @@ namespace AI4Bharat.ISLBot.Services
             }
         }
     }
+}

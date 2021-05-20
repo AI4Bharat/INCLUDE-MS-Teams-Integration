@@ -100,9 +100,23 @@ namespace AI4Bharat.ISLBot.Service.Settings
         /// <value>The media folder.</value>
         public string MediaServiceFQDN { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the speech service subscription key
+        /// </summary>
+        /// <value>The speech service subscription key</value>
         public string SpeechSubscriptionKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the speech service region
+        /// </summary>
+        /// <value>The speech service region</value>
         public string SpeechRegion { get; set; }
+
+        /// <summary>
+        /// Gets or sets the speech voice name
+        /// </summary>
+        /// <value>The speech voice name</value>
+        public string SpeechSynthesisVoiceName { get; set; }
 
         /// <summary>
         /// Initializes this instance.

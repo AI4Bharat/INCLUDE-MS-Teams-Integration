@@ -14,6 +14,7 @@ using Microsoft.Graph.Communications.Common.Transport;
 using Microsoft.Skype.Bots.Media;
 using Microsoft.WindowsAzure.Storage;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -139,11 +140,11 @@ namespace AI4Bharat.ISLBot.Services.Bot
         }
 
 
-        public async Task<Byte[]> CreateSpeechByteArray(string subscriptionKey, string serviceRegion, string word)
+        public async Task<Byte[]> CreateSpeechByteArray(string subscriptionKey, string serviceRegion, string word, string speechSynthesisVoiceName)
         {
             var speechConfig = SpeechConfig.FromSubscription(subscriptionKey, serviceRegion);
 
-            speechConfig.SpeechSynthesisVoiceName = "en-US-GuyRUS";
+            speechConfig.SpeechSynthesisVoiceName = speechSynthesisVoiceName;
 
             var synthesizer = new SpeechSynthesizer(speechConfig, null as AudioConfig);
             var result = await synthesizer.SpeakTextAsync(word);
@@ -207,5 +208,39 @@ namespace AI4Bharat.ISLBot.Services.Bot
 
             return new AudioSendBuffer(unmanagedBuffer, audio.Length, AudioFormat.Pcm16K, referenceTime);
         }
+
+
+        public List<AudioMediaBuffer> CreateAudioMediaBuffers(long currentTick, Byte[] audio)
+        {
+
+            var stream = new MemoryStream(audio);
+
+            var audioMediaBuffers = new List<AudioMediaBuffer>();
+            var referenceTime = currentTick;
+
+            using (stream)
+            {
+                byte[] bytesToRead = new byte[640];
+                stream.Seek(44, SeekOrigin.Begin);
+                while (stream.Read(bytesToRead, 0, bytesToRead.Length) >= 640) //20ms
+                {
+                    IntPtr unmanagedBuffer = Marshal.AllocHGlobal(640);
+                    Marshal.Copy(bytesToRead, 0, unmanagedBuffer, 640);
+                    referenceTime += 20 * 10000;
+                    var audioBuffer = new AudioSendBuffer(unmanagedBuffer, 640, AudioFormat.Pcm16K,
+                        referenceTime);
+                    audioMediaBuffers.Add(audioBuffer);
+                }
+            }
+
+            //Log.Info(
+            //    new CallerInfo(),
+            //    LogContext.Media,
+            //    "created {0} AudioMediaBuffers", audioMediaBuffers.Count);
+            return audioMediaBuffers;
+        }
+
+
+
     }
 }

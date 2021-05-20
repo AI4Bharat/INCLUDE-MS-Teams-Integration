@@ -58,6 +58,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private readonly ILocalMediaSession mediaSession;
         private readonly IGraphLogger logger;
         private int shutdown;
+        private AzureSettings settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BotMediaStream" /> class.
@@ -82,6 +83,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
 
             this.mediaSession = mediaSession;
             this.logger = logger;
+            this.settings = settings;
 
             this.participants = new List<IParticipant>();
 
@@ -304,6 +306,10 @@ namespace AI4Bharat.ISLBot.Services.Bot
             this.logger.Info($"[VideoReceiveStatusChangedEventArgs(MediaReceiveStatus=<{e.MediaReceiveStatus}>]");
         }
 
+
+        // temporary measure for debugging
+        bool _sending = false;
+
         /// <summary>
         /// Choose who to spotlight, and then send their video, when we receive video from a subscribed participant.
         /// </summary>
@@ -316,14 +322,22 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private async void OnVideoMediaReceived(object sender, VideoMediaReceivedEventArgs e)
         {
             this.logger.Info($"[VideoMediaReceivedEventArgs(Data=<{e.Buffer.Data.ToString()}>, Length={e.Buffer.Length}, Timestamp={e.Buffer.Timestamp}, Width={e.Buffer.VideoFormat.Width}, Height={e.Buffer.VideoFormat.Height}, ColorFormat={e.Buffer.VideoFormat.VideoColorFormat}, FrameRate={e.Buffer.VideoFormat.FrameRate} MediaSourceId={e.Buffer.MediaSourceId})]");
-            
-            var speechHelper = new SpeechHelper();
-            // requires AWAIT in method
-            var audioArray = await speechHelper.CreateSpeechByteArray(settings.speechSubscriptionKey, settings.speechRegion, "test");
-            var sendBuffer = await speechHelper.CreateAudioMediaBuffer(DateTime.Now.Ticks,  audioArray);
 
-            // this sends it from the bot....!!!!
-            SendAudio(sendBuffer);
+            if (!_sending)
+            {
+                _sending = true;
+                
+                var speechHelper = new SpeechHelper();
+                // generates a byte array of spoken speech - requires AWAIT in method
+                var audioArray = await speechHelper.CreateSpeechByteArray(settings.SpeechSubscriptionKey, settings.SpeechRegion, "hello there", settings.SpeechSynthesisVoiceName);
+                var allBuffers = speechHelper.CreateAudioMediaBuffers(DateTime.Now.Ticks, audioArray);
+
+                // this sends it from the bot....!!!!
+                foreach (AudioMediaBuffer a in allBuffers)
+                    SendAudio(a);
+
+                _sending = false;
+            }
 
             e.Buffer.Dispose();
         }
