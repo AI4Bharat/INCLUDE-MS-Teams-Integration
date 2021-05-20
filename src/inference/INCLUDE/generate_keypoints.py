@@ -69,7 +69,7 @@ def process_video(path, save_dir):
     hand1_points_x, hand1_points_y = [], []
     hand2_points_x, hand2_points_y = [], []
 
-    label = path.split("/")[-2]
+    label = os.path.split(path)
     label = "".join([i for i in label if i.isalpha()]).lower()
     uid = os.path.splitext(os.path.basename(path))[0]
     uid = "_".join([label, uid])

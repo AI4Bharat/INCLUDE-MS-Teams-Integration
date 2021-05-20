@@ -8,15 +8,11 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 from torch.utils import data
-from generate_keypoints import process_video
-from models import Transformer
-from configs import TransformerConfig
-from utils import load_json, load_label_map
+from INCLUDE.generate_keypoints import process_video
+from INCLUDE.models import Transformer
+from INCLUDE.configs import TransformerConfig
+from INCLUDE.utils import load_json, load_label_map
 import shutil
-
-parser = argparse.ArgumentParser(description="Evaluate function")
-parser.add_argument("--data_dir", required=True, help="data directory")
-args = parser.parse_args()
 
 
 class KeypointsDataset(data.Dataset):
@@ -126,44 +122,60 @@ def inference(dataloader, model, device, label_map):
 
     return predictions
 
+def get_inference_args(video_paths):
+    save_dir = "keypoints_dir"
+    if os.path.isdir(save_dir):
+        shutil.rmtree(save_dir)
+    os.mkdir(save_dir)
+    for path in tqdm(video_paths, desc="Processing Videos"):
+        process_video(path, save_dir)
 
-video_paths = glob.glob(os.path.join(args.data_dir, "*"))
-save_dir = "keypoints_dir"
-if os.path.isdir(save_dir):
-    shutil.rmtree(save_dir)
-os.mkdir(save_dir)
-for path in tqdm(video_paths, desc="Processing Videos"):
-    process_video(path, save_dir)
+    label_map = load_label_map("include")
+    dataset = KeypointsDataset(
+        keypoints_dir=save_dir,
+        max_frame_len=169,
+    )
 
-label_map = load_label_map("include")
-dataset = KeypointsDataset(
-    keypoints_dir=save_dir,
-    max_frame_len=169,
-)
+    dataloader = data.DataLoader(
+        dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=0,
+        pin_memory=True,
+    )
+    label_map = dict(zip(label_map.values(), label_map.keys()))
 
-dataloader = data.DataLoader(
-    dataset,
-    batch_size=1,
-    shuffle=False,
-    num_workers=4,
-    pin_memory=True,
-)
-label_map = dict(zip(label_map.values(), label_map.keys()))
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    config = TransformerConfig(size="large", max_position_embeddings=256)
+    model = Transformer(config=config, n_classes=263)
+    model = model.to(device)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-config = TransformerConfig(size="large", max_position_embeddings=256)
-model = Transformer(config=config, n_classes=263)
-model = model.to(device)
+    pretrained_model_name = "include_no_cnn_transformer_large.pth"
+    pretrained_model_links = load_json(os.path.join(os.path.dirname(__file__), "pretrained_links.json"))
+    if not os.path.isfile(pretrained_model_name):
+        link = pretrained_model_links[pretrained_model_name]
+        torch.hub.download_url_to_file(link, pretrained_model_name, progress=True)
 
-pretrained_model_name = "include_no_cnn_transformer_large.pth"
-pretrained_model_links = load_json("pretrained_links.json")
-if not os.path.isfile(pretrained_model_name):
-    link = pretrained_model_links[pretrained_model_name]
-    torch.hub.download_url_to_file(link, pretrained_model_name, progress=True)
+    ckpt = torch.load(pretrained_model_name, map_location=device)
 
-ckpt = torch.load(pretrained_model_name)
-model.load_state_dict(ckpt["model"])
-print("### Model loaded ###")
+    model.load_state_dict(ckpt["model"])
+    print("### Model loaded ###")
 
-preds = inference(dataloader, model, device, label_map)
-print(json.dumps(preds, indent=2))
+    params = {
+       "dataloader": dataloader, 
+       "model": model, 
+       "device": device, 
+       "label_map": label_map
+    }
+    return params
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Evaluate function")
+    parser.add_argument("--data_dir", required=True, help="data directory")
+    args = parser.parse_args()
+
+    video_paths = glob.glob(os.path.join(args.data_dir, "*"))
+    inference_args = get_inference_args(video_paths)
+    preds = inference(**inference_args)
+
+    print(json.dumps(preds, indent=2))

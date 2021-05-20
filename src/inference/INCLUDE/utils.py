@@ -21,7 +21,8 @@ def load_json(path):
 
 
 def load_label_map(dataset):
-    file_path = f"label_maps/label_map_{dataset}.json"
+    file_path = f"{os.path.dirname(__file__)}/label_maps/label_map_{dataset}.json"
+    print(file_path)
     return load_json(file_path)
 
 
