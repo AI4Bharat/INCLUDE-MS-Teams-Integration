@@ -3,10 +3,13 @@
 // Licensed under the MIT license.
 // </copyright>
 
+using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.CognitiveServices;
 using Microsoft.Graph.Communications.Common.Telemetry;
 using Microsoft.Psi;
 using Microsoft.Psi.Imaging;
 using Microsoft.Psi.Media;
+using Microsoft.Skype.Bots.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,9 +66,16 @@ namespace AI4Bharat.ISLBot.Services.Psi
         
         public static IProducer<string> CallModel(this IProducer<string> source, string endpointUrl, string basePath, IGraphLogger logger)
         {
-            var callApi = new CallAPIComponent(source.Out.Pipeline, endpointUrl, basePath, logger);
+            var callApi = new CallModelComponent(source.Out.Pipeline, endpointUrl, basePath, logger);
             source.PipeTo(callApi, DeliveryPolicy.LatestMessage);
             return callApi.Out;
+        }
+
+        public static IProducer<byte[]> PerformTextToSpeech(this IProducer<string> source, AzureTextToSpeechSettings settings, IGraphLogger logger)
+        {
+            var comp = new TextToSpeechComponent(source.Out.Pipeline, settings, logger);
+            source.PipeTo(comp);
+            return comp.Out;
         }
     }
 }

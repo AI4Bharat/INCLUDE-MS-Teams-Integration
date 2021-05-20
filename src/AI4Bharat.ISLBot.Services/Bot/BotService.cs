@@ -43,6 +43,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// The logger
         /// </summary>
         private readonly IGraphLogger _logger;
+        private readonly AzureTextToSpeechSettings _ttsSettings;
 
         /// <summary>
         /// The settings
@@ -76,13 +77,13 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// <param name="settings">The settings.</param>
         public BotService(
             IGraphLogger logger,
-            IOptions<AzureSettings> settings
-
+            IOptions<AzureSettings> settings,
+            IOptions<AzureTextToSpeechSettings> ttsSettings
         )
         {
-            _logger = logger;
-            _settings = settings.Value;
-
+            this._logger = logger;
+            this._settings = settings.Value;
+            this._ttsSettings = ttsSettings.Value;
         }
 
         /// <summary>
@@ -294,7 +295,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             foreach (var call in args.AddedResources)
             {
-                var callHandler = new CallHandler(call, _settings);
+                var callHandler = new CallHandler(call, this._settings, this._ttsSettings);
                 this.CallHandlers[call.Id] = callHandler;
             }
 

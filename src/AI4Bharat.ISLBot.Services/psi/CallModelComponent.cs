@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace AI4Bharat.ISLBot.Services.Psi
 {
-    public class CallAPIComponent : AsyncConsumerProducer<string, string>, IDisposable
+    public class CallModelComponent : AsyncConsumerProducer<string, string>, IDisposable
     {
         private HttpClient client;
         private string endpointUrl;
         private readonly string basePath;
         private readonly IGraphLogger logger;
 
-        public CallAPIComponent(Pipeline pipeline, string endpointUrl, string basePath, IGraphLogger logger) : base(pipeline)
+        public CallModelComponent(Pipeline pipeline, string endpointUrl, string basePath, IGraphLogger logger) : base(pipeline)
         {
             this.client = new HttpClient();
             this.endpointUrl = endpointUrl;
@@ -32,6 +32,7 @@ namespace AI4Bharat.ISLBot.Services.Psi
             {
                 // Fire off the request query asynchronously.
                 //f = "local.MOV";
+                f = "637571099426460735.mp4";
                 var response = await this.client.PostAsync(
                     $"{endpointUrl}?from_local=True&local_file_path={basePath}&file_name={f}", null);
 
