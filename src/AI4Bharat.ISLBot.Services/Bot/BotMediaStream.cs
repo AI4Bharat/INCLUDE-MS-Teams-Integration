@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Threading;
-using AI4Bharat.ISLBot.Services.psi;
+using AI4Bharat.ISLBot.Services.Psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {

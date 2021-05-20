@@ -15,13 +15,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AI4Bharat.ISLBot.Services.psi
+namespace AI4Bharat.ISLBot.Services.Psi
 {
     public class ISLPipeline: IDisposable
     {
         private readonly IGraphLogger logger;
         private Pipeline pipeline;
         private FrameSourceComponent frameSourceComponent;
+
+        private const int IMAGE_WIDTH = 480;
+        private const int IMAGE_HEIGHT = 270;
 
         public ISLPipeline(IGraphLogger logger)
         {
@@ -45,34 +48,38 @@ namespace AI4Bharat.ISLBot.Services.psi
 
             var mpegConfig = Mpeg4WriterConfiguration.Default;
             mpegConfig.ContainsAudio = false;
-            mpegConfig.ImageWidth = 480;
-            mpegConfig.ImageHeight = 270;
+            mpegConfig.ImageWidth = IMAGE_WIDTH;
+            mpegConfig.ImageHeight = IMAGE_HEIGHT;
             mpegConfig.PixelFormat = PixelFormat.BGR_24bpp;
+
+            var basePath = @"E:\Recording";
+            var endpointUrl = @"http://vm7islbotdemo.centralindia.cloudapp.azure.com:8000/inference";
 
             var resized = frameSourceComponent
                 .Video
                 .Select(v => v.First().Value)
-                .Resize(480, 270);
+                .Resize(IMAGE_WIDTH, IMAGE_HEIGHT);
+            var labelStream = resized
+                .WriteMP4InBatches(TimeSpan.FromSeconds(5), basePath, mpegConfig)
+                .CallModel(endpointUrl, basePath, logger);
+            labelStream
+                .Do(label => this.logger.Warn(label));
 
-            var writer = new Mpeg4Writer(pipeline, "output.mp4", mpegConfig);
-            resized.PipeTo(writer.ImageIn);
-
-            var store = PsiStore.Create(pipeline, "demo", "C:\\psistore");
+            var store = PsiStore.Create(pipeline, "Bot", @"E:\psi");
             resized.Write("video", store);
+            labelStream.Write("label", store);
 
             this.pipeline.PipelineExceptionNotHandled += (_, ex) =>
             {
-                this.logger.Error($"PSI PIPELINE ERROR: {ex.Exception.Message}");
+                this.logger.Error(ex.Exception, $"PSI PIPELINE ERROR: {ex.Exception.Message}");
             };
 
             pipeline.RunAsync();
-            Task.Run(async () => {
-                await Task.Delay(30000);
-                this.logger.Warn("STOPPPPPPPPPIIIIIIIIINNNNNNNNGGGGGGGGGGGGGGGGG");
-                pipeline.Dispose();
-            });
-
-            //this.pipeline.RunAsync();
+            //Task.Run(async () => {
+            //    await Task.Delay(30000);
+            //    this.logger.Warn("STOPPPPPPPPPIIIIIIIIINNNNNNNNGGGGGGGGGGGGGGGGG");
+            //    pipeline.Dispose();
+            //});
         }
 
         public void OnVideoMediaReceived(VideoMediaBuffer videoFrame, string participantId)

@@ -18,7 +18,7 @@ using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Collections.Concurrent;
 using Microsoft.Skype.Bots.Media;
-using AI4Bharat.ISLBot.Services.psi;
+using AI4Bharat.ISLBot.Services.Psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {

@@ -14,7 +14,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace AI4Bharat.ISLBot.Services.psi
+namespace AI4Bharat.ISLBot.Services.Psi
 {
     public class FrameSourceComponent : ISourceComponent
     {
