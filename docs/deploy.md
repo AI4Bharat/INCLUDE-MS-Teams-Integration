@@ -96,13 +96,13 @@
     {
       "AllowedHosts": "*",
       "AzureSettings": {
-        "BotName": "<Bot Name>", // Created while Registering a calling bot
-        "AadAppId": "<Application Id of the Bot>", // Created while Registering a calling bot
-        "AadAppSecret": "<Application Secret of the Bot>", // Created while Registering a calling bot
-        "ServiceCname": "<DNS Name of the VM>", // Ex. bot.domain_name
-        "MediaServiceFQDN": "<DNS Name of the VM>", // Ex. bot.domain_name
-        "ServiceDnsName": "<DNS Name of the VM>", // Ex. bot.domain_name
-        "CertificateThumbprint": "<Thumb print of the certificate>", // Certificate of the domain_name
+        "BotName": "<Bot Name, created while Registering a calling bot>",
+        "AadAppId": "<Application Id of the Bot, , created while Registering a calling bot>",
+        "AadAppSecret": "<Application Secret of the Bot, created while Registering a calling bot>",
+        "ServiceCname": "<DNS Name of the VM, ex. bot.domain_name>",
+        "MediaServiceFQDN": "<DNS Name of the VM, ex. bot.domain_name>",
+        "ServiceDnsName": "<DNS Name of the VM, ex. bot.domain_name>",
+        "CertificateThumbprint": "<Thumb print of the certificate created for the domain_name>",
         "InstancePublicPort": 8081,
         "CallSignalingPort": 9441,
         "InstanceInternalPort": 8445,
