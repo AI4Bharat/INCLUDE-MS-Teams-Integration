@@ -2,18 +2,20 @@ import os
 import glob
 import argparse
 import json
+import sys
+import shutil
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import torch
 import torch.nn as nn
 from torch.utils import data
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from INCLUDE.generate_keypoints import process_video
 from INCLUDE.models import Transformer
 from INCLUDE.configs import TransformerConfig
 from INCLUDE.utils import load_json, load_label_map
-import shutil
-
 
 class KeypointsDataset(data.Dataset):
     def __init__(
