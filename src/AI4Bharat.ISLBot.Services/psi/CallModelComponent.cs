@@ -32,7 +32,6 @@ namespace AI4Bharat.ISLBot.Services.Psi
             {
                 // Fire off the request query asynchronously.
                 //f = "local.MOV";
-                f = "637571099426460735.mp4";
                 var response = await this.client.PostAsync(
                     $"{endpointUrl}?from_local=True&local_file_path={basePath}&file_name={f}", null);
 
