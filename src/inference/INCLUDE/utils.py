@@ -21,6 +21,7 @@ def load_json(path):
 
 
 def load_label_map(dataset):
+    # Changed to absolute path to be able to locate file when running in api.
     file_path = f"{os.path.dirname(__file__)}/label_maps/label_map_{dataset}.json"
     return load_json(file_path)
 

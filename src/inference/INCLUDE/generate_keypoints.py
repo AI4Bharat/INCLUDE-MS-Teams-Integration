@@ -70,11 +70,13 @@ def process_video(path, save_dir):
     hand1_points_x, hand1_points_y = [], []
     hand2_points_x, hand2_points_y = [], []
 
-    label = os.path.split(path)
+    label = os.path.split(path) # label = path.split("/")[-2] will not run on windows
     label = "".join([i for i in label if i.isalpha()]).lower()
     uid = os.path.splitext(os.path.basename(path))[0]
     uid = "_".join([label, uid])
     n_frames = 0
+    
+    # Fixed to stop it from proceeding when file not found
     assert(os.path.isfile(path)), f"{path} file not found"
 
     cap = cv2.VideoCapture(path)

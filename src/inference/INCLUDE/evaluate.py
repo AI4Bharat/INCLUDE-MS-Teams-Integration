@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 from torch.utils import data
 
+# To be able to import the modules as well when importing from the api
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from INCLUDE.generate_keypoints import process_video
 from INCLUDE.models import Transformer
@@ -124,6 +125,7 @@ def inference(dataloader, model, device, label_map):
 
     return predictions
 
+# Reused by api
 def get_inference_args(video_paths):
     save_dir = "keypoints_dir"
     if os.path.isdir(save_dir):
