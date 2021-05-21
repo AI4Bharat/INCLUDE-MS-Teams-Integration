@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Threading;
-using AI4Bharat.ISLBot.Services.psi;
+using AI4Bharat.ISLBot.Services.Psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -75,7 +75,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
             ICall call,
             IGraphLogger logger,
             AzureSettings settings,
-            ISLPipeline islPipeline
+            AzureTextToSpeechSettings ttsSettings
         )
             : base(logger)
         {
@@ -83,9 +83,11 @@ namespace AI4Bharat.ISLBot.Services.Bot
             ArgumentVerifier.ThrowOnNullArgument(logger, nameof(logger));
             ArgumentVerifier.ThrowOnNullArgument(settings, nameof(settings));
 
+            this.islPipeline = new ISLPipeline(this.GraphLogger, ttsSettings, buffer => SendAudio(buffer));
+            islPipeline.CreateAndStartPipeline();
+
             this.mediaSession = mediaSession;
             this.logger = logger;
-            this.islPipeline = islPipeline;
             this.participants = new List<IParticipant>();
 
             this.call = call;
@@ -291,6 +293,14 @@ namespace AI4Bharat.ISLBot.Services.Bot
             catch (Exception ex)
             {
                 this.logger.Error(ex, $"[OnAudioReceived] Exception while calling audioSocket.Send()");
+            }
+        }
+
+        private void SendAudio(List<AudioMediaBuffer> buffers)
+        {
+            foreach (var buffer in buffers)
+            {
+                SendAudio(buffer);
             }
         }
         #endregion

@@ -18,7 +18,7 @@ using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Collections.Concurrent;
 using Microsoft.Skype.Bots.Media;
-using AI4Bharat.ISLBot.Services.psi;
+using AI4Bharat.ISLBot.Services.Psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -48,7 +48,6 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// The is disposed
         /// </summary>
         private bool _isDisposed = false;
-        private ISLPipeline islBotPipeline;
 
         // hashSet of the available sockets
         private readonly HashSet<uint> availableSocketIds = new HashSet<uint>();
@@ -70,7 +69,8 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// <param name="settings">The settings.</param>
         public CallHandler(
             ICall statefulCall,
-            AzureSettings settings
+            AzureSettings settings,
+            AzureTextToSpeechSettings ttsSettings
         )
             : base(TimeSpan.FromMinutes(10), statefulCall?.GraphLogger)
         {
@@ -80,15 +80,12 @@ namespace AI4Bharat.ISLBot.Services.Bot
             this.Call.OnUpdated += this.CallOnUpdated;
             this.Call.Participants.OnUpdated += this.ParticipantsOnUpdated;
 
-            this.islBotPipeline = new ISLPipeline(this.GraphLogger);
-            islBotPipeline.DoWork();
-
             foreach (var videoSocket in this.Call.GetLocalMediaSession().VideoSockets)
             {
                 this.availableSocketIds.Add((uint)videoSocket.SocketId);
             }
 
-            this.BotMediaStream = new BotMediaStream(this.Call.GetLocalMediaSession(), this.Call, this.GraphLogger,  _settings, islBotPipeline);
+            this.BotMediaStream = new BotMediaStream(this.Call.GetLocalMediaSession(), this.Call, this.GraphLogger,  _settings, ttsSettings);
         }
 
         /// <inheritdoc/>
@@ -112,7 +109,6 @@ namespace AI4Bharat.ISLBot.Services.Bot
             }
 
             this.BotMediaStream?.Dispose();
-            this.islBotPipeline.Dispose();
         }
 
         /// <summary>

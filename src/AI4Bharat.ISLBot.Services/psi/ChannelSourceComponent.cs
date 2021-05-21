@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace AI4Bharat.ISLBot.Services.psi
+namespace AI4Bharat.ISLBot.Services.Psi
 {
     public class ChannelSourceComponent<T> : ISourceComponent
     {
