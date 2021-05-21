@@ -63,9 +63,4 @@ async def root(file_name: str, local_file_path:str = "", from_local:bool = False
         raise HTTPException(status_code=400, detail=error.args[0])
 
 if __name__ == '__main__':
-
-
-
-    # az_container_client_setup()
     uvicorn.run("main:app", reload=True)
-    # az_container_client_setup()
