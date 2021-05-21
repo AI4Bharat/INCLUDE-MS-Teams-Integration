@@ -60,6 +60,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private readonly IGraphLogger logger;
         private readonly ISLPipeline islPipeline;
         private int shutdown;
+        private MediaSendStatus vbssMediaSendStatus = MediaSendStatus.Inactive;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BotMediaStream" /> class.
@@ -83,7 +84,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
             ArgumentVerifier.ThrowOnNullArgument(logger, nameof(logger));
             ArgumentVerifier.ThrowOnNullArgument(settings, nameof(settings));
 
-            this.islPipeline = new ISLPipeline(this.GraphLogger, ttsSettings, buffer => SendAudio(buffer));
+            this.islPipeline = new ISLPipeline(this.GraphLogger, ttsSettings, buffer => SendAudio(buffer), nv12 => SendScreenShare(nv12));
             islPipeline.CreateAndStartPipeline();
 
             this.mediaSession = mediaSession;
@@ -124,6 +125,12 @@ namespace AI4Bharat.ISLBot.Services.Bot
             }
         }
 
+        private void SendScreenShare(byte[] nv12)
+        {
+            var format = VideoFormatMap[(VideoColorFormat.NV12, 1920, 1080)];
+            this.SendScreen(new VideoSendBuffer(nv12, (uint)nv12.Length, format));
+        }
+
         /// <summary>
         /// Gets the participants.
         /// </summary>
@@ -138,6 +145,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             // Event Dispose of the bot media stream object
             base.Dispose(disposing);
+            this.islPipeline.Dispose();
 
             if (Interlocked.CompareExchange(ref this.shutdown, 1, 1) == 1)
             {
@@ -294,6 +302,10 @@ namespace AI4Bharat.ISLBot.Services.Bot
             {
                 this.logger.Error(ex, $"[OnAudioReceived] Exception while calling audioSocket.Send()");
             }
+            finally
+            {
+                buffer.Dispose();
+            }
         }
 
         private void SendAudio(List<AudioMediaBuffer> buffers)
@@ -394,6 +406,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private void OnVbssSocketSendStatusChanged(object sender, VideoSendStatusChangedEventArgs e)
         {
             this.logger.Info($"[VbssSendStatusChangedEventArgs(MediaSendStatus=<{e.MediaSendStatus};PreferredVideoSourceFormat=<{e.PreferredVideoSourceFormat}>]");
+            this.vbssMediaSendStatus = e.MediaSendStatus;
         }
 
         /// <summary>
@@ -404,6 +417,30 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private void OnVbssMediaStreamFailure(object sender, MediaStreamFailureEventArgs e)
         {
             this.logger.Error($"[VbssOnMediaStreamFailure({e})]");
+        }
+
+        /// <summary>
+        /// Sends a <see cref="VideoMediaBuffer"/> as a shared screen frame to the call from the Bot's video feed.
+        /// </summary>
+        /// <param name="buffer">The video buffer to send.</param>
+        private void SendScreen(VideoMediaBuffer buffer)
+        {
+            // Send the video to our outgoing screen sharing video stream
+            try
+            {
+                if (this.vbssMediaSendStatus == MediaSendStatus.Active)
+                {
+                    this.vbssSocket.Send(buffer);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.Error(ex, $"[OnVideoMediaReceived] Exception while calling vbssSocket.Send()");
+            }
+            //finally
+            //{
+            //    buffer.Dispose();
+            //}
         }
         #endregion
     }

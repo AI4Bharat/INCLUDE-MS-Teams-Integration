@@ -48,6 +48,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// The is disposed
         /// </summary>
         private bool _isDisposed = false;
+        private bool waitingToShare = true;
 
         // hashSet of the available sockets
         private readonly HashSet<uint> availableSocketIds = new HashSet<uint>();
@@ -120,7 +121,12 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             this.GraphLogger.Info($"Call status updated to {e.NewResource.State} - {e.NewResource.ResultInfo?.Message}");
             // Event - Recording update e.g established/updated/start/ended
-
+            if (waitingToShare && this.Call.Resource.State == CallState.Established)
+            {
+                // enable screen sharing
+                this.Call.ChangeScreenSharingRoleAsync(ScreenSharingRole.Sharer).Wait();
+                waitingToShare = false;
+            }
             if (e.OldResource.State != e.NewResource.State && e.NewResource.State == CallState.Established)
             {
             }
@@ -148,7 +154,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// <param name="added">if set to <c>true</c> [added].</param>
         /// <param name="participantDisplayName">Display name of the participant.</param>
         /// <returns>System.String.</returns>
-        private string updateParticipant(List<IParticipant> participants, IParticipant participant, bool added, string participantDisplayName = "")
+        private string UpdateParticipant(List<IParticipant> participants, IParticipant participant, bool added, string participantDisplayName = "")
         {
             if (added)
             {
@@ -183,13 +189,13 @@ namespace AI4Bharat.ISLBot.Services.Bot
 
                 if (participantDetails != null)
                 {
-                    json = updateParticipant(this.BotMediaStream.participants, participant, added, participantDetails.DisplayName);
+                    json = UpdateParticipant(this.BotMediaStream.participants, participant, added, participantDetails.DisplayName);
                 }
                 else if (participant.Resource.Info.Identity.AdditionalData?.Count > 0)
                 {
                     if (CheckParticipantIsUsable(participant))
                     {
-                        json = updateParticipant(this.BotMediaStream.participants, participant, added);
+                        json = UpdateParticipant(this.BotMediaStream.participants, participant, added);
                     }
                 }
             }

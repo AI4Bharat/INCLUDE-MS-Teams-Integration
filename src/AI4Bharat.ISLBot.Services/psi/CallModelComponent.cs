@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace AI4Bharat.ISLBot.Services.Psi
 {
-    public class CallModelComponent : AsyncConsumerProducer<string, string>, IDisposable
+    public class CallModelComponent : AsyncConsumerProducer<string, (string filename, string label)>, IDisposable
     {
         private HttpClient client;
         private string endpointUrl;
@@ -40,7 +40,7 @@ namespace AI4Bharat.ISLBot.Services.Psi
                 string json = await response.Content.ReadAsStringAsync();
                 // Deserialize the JSON into an IntentData object.
                 var modelResponse = JsonConvert.DeserializeObject<ModelResponse>(json);
-                this.Out.Post(modelResponse.predicted_label, e.OriginatingTime);
+                this.Out.Post((f, modelResponse.predicted_label), e.OriginatingTime);
             }
             catch (HttpRequestException ex)
             {

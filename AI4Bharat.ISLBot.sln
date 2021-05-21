@@ -21,26 +21,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{BDDB7CB7-3
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
-		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Debug|x64.ActiveCfg = Debug|x64
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Debug|x64.Build.0 = Debug|x64
-		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Release|x64.ActiveCfg = Release|x64
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Release|x64.Build.0 = Release|x64
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44F74D50-42FE-46F9-9398-91BA34901594}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{44F74D50-42FE-46F9-9398-91BA34901594}.Debug|x64.Build.0 = Debug|Any CPU
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44F74D50-42FE-46F9-9398-91BA34901594}.Release|x64.ActiveCfg = Release|Any CPU
 		{44F74D50-42FE-46F9-9398-91BA34901594}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection

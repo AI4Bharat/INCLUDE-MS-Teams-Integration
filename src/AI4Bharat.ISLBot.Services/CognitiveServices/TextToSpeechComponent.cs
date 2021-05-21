@@ -37,7 +37,6 @@ namespace AI4Bharat.ISLBot.Services.CognitiveServices
             try
             {
                 var audio = await CreateSpeechByteArray(word);
-                // var buffers = CreateAudioMediaBuffers(DateTime.UtcNow.Ticks, audio);
                 this.Out.Post(audio, envelope.OriginatingTime);
             }
             catch (Exception ex)
