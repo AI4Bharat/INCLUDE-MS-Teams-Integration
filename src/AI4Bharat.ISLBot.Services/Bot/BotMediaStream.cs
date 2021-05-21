@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Threading;
+using AI4Bharat.ISLBot.Services.psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -30,7 +31,9 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             { (VideoColorFormat.NV12, 1920, 1080), VideoFormat.NV12_1920x1080_15Fps },
             { (VideoColorFormat.NV12, 1280, 720), VideoFormat.NV12_1280x720_15Fps },
+            { (VideoColorFormat.NV12, 848, 480), VideoFormat.NV12_848x480_30Fps },
             { (VideoColorFormat.NV12, 640, 360), VideoFormat.NV12_640x360_15Fps },
+            { (VideoColorFormat.NV12, 480, 848), VideoFormat.NV12_480x848_30Fps },
             { (VideoColorFormat.NV12, 480, 270), VideoFormat.NV12_480x270_15Fps },
             { (VideoColorFormat.NV12, 424, 240), VideoFormat.NV12_424x240_15Fps },
             { (VideoColorFormat.NV12, 360, 640), VideoFormat.NV12_360x640_15Fps },
@@ -49,12 +52,13 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private readonly IVideoSocket vbssSocket;
         private readonly IVideoSocket mainVideoSocket;
 
-        private readonly string callId;
+        private readonly ICall call;
 
         private readonly List<IVideoSocket> multiViewVideoSockets;
 
         private readonly ILocalMediaSession mediaSession;
         private readonly IGraphLogger logger;
+        private readonly ISLPipeline islPipeline;
         private int shutdown;
 
         /// <summary>
@@ -68,9 +72,10 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// <exception cref="InvalidOperationException">A mediaSession needs to have at least an audioSocket</exception>
         public BotMediaStream(
             ILocalMediaSession mediaSession,
-            string callId,
+            ICall call,
             IGraphLogger logger,
-            AzureSettings settings
+            AzureSettings settings,
+            ISLPipeline islPipeline
         )
             : base(logger)
         {
@@ -80,10 +85,10 @@ namespace AI4Bharat.ISLBot.Services.Bot
 
             this.mediaSession = mediaSession;
             this.logger = logger;
-
+            this.islPipeline = islPipeline;
             this.participants = new List<IParticipant>();
 
-            this.callId = callId;
+            this.call = call;
 
             // Subscribe to the audio media.
             this.audioSocket = mediaSession.AudioSocket;
@@ -255,7 +260,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The audio media received arguments.</param>
-        private async void OnAudioMediaReceived(object sender, AudioMediaReceivedEventArgs e)
+        private void OnAudioMediaReceived(object sender, AudioMediaReceivedEventArgs e)
         {
             try
             {
@@ -313,8 +318,15 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// </param>
         private void OnVideoMediaReceived(object sender, VideoMediaReceivedEventArgs e)
         {
-            this.logger.Info($"[VideoMediaReceivedEventArgs(Data=<{e.Buffer.Data.ToString()}>, Length={e.Buffer.Length}, Timestamp={e.Buffer.Timestamp}, Width={e.Buffer.VideoFormat.Width}, Height={e.Buffer.VideoFormat.Height}, ColorFormat={e.Buffer.VideoFormat.VideoColorFormat}, FrameRate={e.Buffer.VideoFormat.FrameRate} MediaSourceId={e.Buffer.MediaSourceId})]");
+            // this.logger.Info($"[VideoMediaReceivedEventArgs(Data=<{e.Buffer.Data.ToString()}>, Length={e.Buffer.Length}, Timestamp={e.Buffer.Timestamp}, Width={e.Buffer.VideoFormat.Width}, Height={e.Buffer.VideoFormat.Height}, ColorFormat={e.Buffer.VideoFormat.VideoColorFormat}, FrameRate={e.Buffer.VideoFormat.FrameRate} MediaSourceId={e.Buffer.MediaSourceId})]");
+            var participant = BotMediaStream.GetParticipantFromMSI(this.call, e.Buffer.MediaSourceId);
+            this.islPipeline.OnVideoMediaReceived(e.Buffer, participant.Resource.Info.Identity.User.Id);
             e.Buffer.Dispose();
+        }
+
+        public static IParticipant GetParticipantFromMSI(ICall call, uint msi)
+        {
+            return call.Participants.SingleOrDefault(x => x.Resource.IsInLobby == false && x.Resource.MediaStreams.Any(y => y.SourceId == msi.ToString()));
         }
 
         /// <summary>

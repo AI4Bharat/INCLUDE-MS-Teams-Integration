@@ -18,6 +18,7 @@ using AI4Bharat.ISLBot.Service.Settings;
 using System.Linq;
 using System.Collections.Concurrent;
 using Microsoft.Skype.Bots.Media;
+using AI4Bharat.ISLBot.Services.psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -47,6 +48,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// The is disposed
         /// </summary>
         private bool _isDisposed = false;
+        private ISLPipeline islBotPipeline;
 
         // hashSet of the available sockets
         private readonly HashSet<uint> availableSocketIds = new HashSet<uint>();
@@ -78,12 +80,15 @@ namespace AI4Bharat.ISLBot.Services.Bot
             this.Call.OnUpdated += this.CallOnUpdated;
             this.Call.Participants.OnUpdated += this.ParticipantsOnUpdated;
 
+            this.islBotPipeline = new ISLPipeline(this.GraphLogger);
+            islBotPipeline.DoWork();
+
             foreach (var videoSocket in this.Call.GetLocalMediaSession().VideoSockets)
             {
                 this.availableSocketIds.Add((uint)videoSocket.SocketId);
             }
 
-            this.BotMediaStream = new BotMediaStream(this.Call.GetLocalMediaSession(), this.Call.Id, this.GraphLogger,  _settings);
+            this.BotMediaStream = new BotMediaStream(this.Call.GetLocalMediaSession(), this.Call, this.GraphLogger,  _settings, islBotPipeline);
         }
 
         /// <inheritdoc/>
@@ -107,6 +112,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
             }
 
             this.BotMediaStream?.Dispose();
+            this.islBotPipeline.Dispose();
         }
 
         /// <summary>
