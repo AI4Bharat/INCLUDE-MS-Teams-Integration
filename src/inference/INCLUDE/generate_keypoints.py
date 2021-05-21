@@ -13,9 +13,10 @@ import warnings
 
 def process_landmarks(landmarks):
     x_list, y_list = [], []
-    for landmark in landmarks.landmark:
-        x_list.append(landmark.x)
-        y_list.append(landmark.y)
+    if landmarks:
+        for landmark in landmarks.landmark:
+            x_list.append(landmark.x)
+            y_list.append(landmark.y)
     return x_list, y_list
 
 
@@ -74,8 +75,8 @@ def process_video(path, save_dir):
     uid = os.path.splitext(os.path.basename(path))[0]
     uid = "_".join([label, uid])
     n_frames = 0
-    if not os.path.isfile(path):
-        warnings.warn(path + " file not found")
+    assert(os.path.isfile(path)), f"{path} file not found"
+
     cap = cv2.VideoCapture(path)
     while cap.isOpened():
         ret, image = cap.read()

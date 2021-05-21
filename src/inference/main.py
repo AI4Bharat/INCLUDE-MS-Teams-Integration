@@ -30,7 +30,6 @@ app = FastAPI()
 async def root(file_name: str, local_file_path:str = "", from_local:bool = False):
     if all([from_local, file_name, local_file_path]):
         file_path = os.path.join(local_file_path, file_name)
-        print(file_path)
     elif file_name and not from_local:
         if container_client is None:
             raise HTTPException(status_code=500, detail="Connection to azure storage is not configured.")
@@ -41,10 +40,16 @@ async def root(file_name: str, local_file_path:str = "", from_local:bool = False
             blob.write(blob_client.download_blob().readall())
     else:
         raise HTTPException(status_code=400, detail="Missing required parameters.")
-    inference_args = get_inference_args([file_path])
-    preds = inference(**inference_args)
-    response = {
-        "file": file_name,
-        "predicted_label": preds[0]["predicted_label"]
-    }
-    return response
+    
+    try:
+        inference_args = get_inference_args([file_path])
+        preds = inference(**inference_args)
+        response = {
+            "file": file_name,
+            "predicted_label": preds[0]["predicted_label"]
+        }
+        return response
+    except AssertionError as error:
+        # print(error.args)
+        raise HTTPException(status_code=400, detail=error.args[0])
+
