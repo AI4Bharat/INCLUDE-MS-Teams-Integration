@@ -142,7 +142,7 @@ def get_inference_args(video_paths):
         dataset,
         batch_size=1,
         shuffle=False,
-        num_workers=0,
+        num_workers=4, # change this to 0 if you get multiprocessing related errors
         pin_memory=True,
     )
     label_map = dict(zip(label_map.values(), label_map.keys()))
