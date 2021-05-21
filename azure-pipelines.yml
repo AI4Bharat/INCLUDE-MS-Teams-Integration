@@ -36,5 +36,12 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    FileCopyOptions: 
     ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'deployscripts/deploy.ps1'
+    ArtifactName: 'deployscripts'
     publishLocation: 'Container'
