@@ -11,14 +11,12 @@ using Microsoft.Graph.Communications.Resources;
 using AI4Bharat.ISLBot.Model.Constants;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using System.Linq;
 using System.Collections.Concurrent;
 using Microsoft.Skype.Bots.Media;
-using AI4Bharat.ISLBot.Services.Psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -71,8 +69,8 @@ namespace AI4Bharat.ISLBot.Services.Bot
         public CallHandler(
             ICall statefulCall,
             AzureSettings settings,
-            AzureTextToSpeechSettings ttsSettings
-        )
+            AzureTextToSpeechSettings ttsSettings,
+            BotSettings botSettings)
             : base(TimeSpan.FromMinutes(10), statefulCall?.GraphLogger)
         {
             _settings = settings;
@@ -86,7 +84,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
                 this.availableSocketIds.Add((uint)videoSocket.SocketId);
             }
 
-            this.BotMediaStream = new BotMediaStream(this.Call.GetLocalMediaSession(), this.Call, this.GraphLogger,  _settings, ttsSettings);
+            this.BotMediaStream = new BotMediaStream(this.Call.GetLocalMediaSession(), this.Call, this.GraphLogger, this._settings, ttsSettings, botSettings);
         }
 
         /// <inheritdoc/>
@@ -141,9 +139,9 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private string CreateParticipantUpdateJson(string participantId, string participantDisplayName = "")
         {
             if (participantDisplayName.Length==0)
-                return "{" + String.Format($"\"Id\": \"{participantId}\"") + "}";
+                return "{" + string.Format($"\"Id\": \"{participantId}\"") + "}";
             else
-                return "{" + String.Format($"\"Id\": \"{participantId}\", \"DisplayName\": \"{participantDisplayName}\"") + "}";
+                return "{" + string.Format($"\"Id\": \"{participantId}\", \"DisplayName\": \"{participantDisplayName}\"") + "}";
         }
 
         /// <summary>

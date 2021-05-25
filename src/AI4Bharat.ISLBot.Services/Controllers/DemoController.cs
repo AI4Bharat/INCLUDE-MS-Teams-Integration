@@ -4,7 +4,7 @@
 // </copyright>
 
 using AI4Bharat.ISLBot.Model.Constants;
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using AI4Bharat.ISLBot.Services.Bot;
 using AI4Bharat.ISLBot.Services.Logging;
 using Microsoft.AspNetCore.Mvc;

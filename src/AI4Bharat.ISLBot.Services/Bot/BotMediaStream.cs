@@ -11,7 +11,7 @@ using Microsoft.Skype.Bots.Media;
 using Microsoft.Skype.Internal.Media.Services.Common;
 using System;
 using System.Collections.Generic;
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using System.Linq;
 using System.Threading;
 using AI4Bharat.ISLBot.Services.Psi;
@@ -76,15 +76,15 @@ namespace AI4Bharat.ISLBot.Services.Bot
             ICall call,
             IGraphLogger logger,
             AzureSettings settings,
-            AzureTextToSpeechSettings ttsSettings
-        )
+            AzureTextToSpeechSettings ttsSettings,
+            BotSettings botSettings)
             : base(logger)
         {
             ArgumentVerifier.ThrowOnNullArgument(mediaSession, nameof(mediaSession));
             ArgumentVerifier.ThrowOnNullArgument(logger, nameof(logger));
             ArgumentVerifier.ThrowOnNullArgument(settings, nameof(settings));
 
-            this.islPipeline = new ISLPipeline(this.GraphLogger, ttsSettings, buffer => SendAudio(buffer), nv12 => SendScreenShare(nv12));
+            this.islPipeline = new ISLPipeline(this.GraphLogger, ttsSettings, botSettings, buffer => SendAudio(buffer), nv12 => SendScreenShare(nv12));
             islPipeline.CreateAndStartPipeline();
 
             this.mediaSession = mediaSession;

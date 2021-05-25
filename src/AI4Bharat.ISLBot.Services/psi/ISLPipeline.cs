@@ -3,7 +3,7 @@
 // Licensed under the MIT license.
 // </copyright>
 
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using AI4Bharat.ISLBot.Services.CognitiveServices;
 using Microsoft.Graph.Communications.Common.Telemetry;
 using Microsoft.Psi;
@@ -28,22 +28,26 @@ namespace AI4Bharat.ISLBot.Services.Psi
     {
         private readonly IGraphLogger logger;
         private readonly AzureTextToSpeechSettings ttsSettings;
+        private readonly BotSettings botSettings;
         private readonly Action<List<AudioMediaBuffer>> sendAudioToBot;
         private readonly Action<byte[]> sendScreenShareToBot;
         private Pipeline pipeline;
         private FrameSourceComponent frameSourceComponent;
 
-        private const int IMAGE_WIDTH = 480;
-        private const int IMAGE_HEIGHT = 270;
+        public const int SCREEN_SHARE_WIDTH = 1920;
+        public const int SCREEN_SHARE_HEIGTH = 1080;
+        private readonly Font font = new Font(FontFamily.GenericMonospace, 32);
 
-        public int ScreenShareWidth = 1920;
-        public int ScreenShareHeight = 1080;
-        private Font font = new Font(FontFamily.GenericMonospace, 32);
-
-        public ISLPipeline(IGraphLogger logger, AzureTextToSpeechSettings ttsSettings, Action<List<AudioMediaBuffer>> sendAudioToBot, Action<byte[]> sendScreenShareToBot)
+        public ISLPipeline(
+            IGraphLogger logger,
+            AzureTextToSpeechSettings ttsSettings,
+            BotSettings botSettings,
+            Action<List<AudioMediaBuffer>> sendAudioToBot,
+            Action<byte[]> sendScreenShareToBot)
         {
             this.logger = logger;
             this.ttsSettings = ttsSettings;
+            this.botSettings = botSettings;
             this.sendAudioToBot = sendAudioToBot;
             this.sendScreenShareToBot = sendScreenShareToBot;
         }
@@ -59,32 +63,31 @@ namespace AI4Bharat.ISLBot.Services.Psi
 
         public void CreateAndStartPipeline()
         {
-            this.pipeline = Pipeline.Create("Teams Pipeline", enableDiagnostics: true);
+            this.pipeline = Pipeline.Create("Teams Pipeline", enableDiagnostics: this.botSettings.EnablePsiDiagnostics);
 
             this.frameSourceComponent = new FrameSourceComponent(this.pipeline, logger);
 
             var mpegConfig = Mpeg4WriterConfiguration.Default;
             mpegConfig.ContainsAudio = false;
-            mpegConfig.ImageWidth = IMAGE_WIDTH;
-            mpegConfig.ImageHeight = IMAGE_HEIGHT;
+            mpegConfig.ImageWidth = (uint)this.botSettings.Resize.Width;
+            mpegConfig.ImageHeight = (uint)this.botSettings.Resize.Height;
             mpegConfig.PixelFormat = PixelFormat.BGR_24bpp;
 
-            var basePath = @"E:\Recording";
-            var endpointUrl = @"http://vm7islbotdemo.centralindia.cloudapp.azure.com:8000/inference";
-
+            var basePath = this.botSettings.RecordingFilePath;
+            var endpointUrl = this.botSettings.ModelEndpointUrl;
             var resized = frameSourceComponent
                 .Video
                 .Select(v => v.First().Value)
-                .Resize(IMAGE_WIDTH, IMAGE_HEIGHT)
+                .Resize(this.botSettings.Resize.Width, this.botSettings.Resize.Height)
                 .Name("Resized Frames");
 
             var fileNames = resized
-                .WriteMP4InBatches(TimeSpan.FromSeconds(5), basePath, mpegConfig)
+                .WriteMP4InBatches(TimeSpan.FromSeconds(this.botSettings.VideoSegmentationIntervalInSeconds), basePath, mpegConfig)
                 .Name("FileNames");
 
             var labelStream = fileNames
                 .CallModel(endpointUrl, basePath, logger).Name("Model Result")
-                .Do(l => this.logger.Warn($"file: {l.filename} label: {l.label}"));
+                .Do(l => this.logger.Info($"file: {l.filename} label: {l.label}"));
 
             labelStream.Item2()
                 .PerformTextToSpeech(this.ttsSettings, this.logger).Name("Text To Speech")
@@ -111,10 +114,13 @@ namespace AI4Bharat.ISLBot.Services.Psi
                     }
                 }).Name("Screen Share to bot");
 
-            var store = PsiStore.Create(pipeline, "Bot", @"E:\psistore");
-            //resized.Write("video", store);
-            labelStream.Write("label", store);
-            pipeline.Diagnostics.Write("Diagnostics", store);
+            if (this.botSettings.EnablePsiStore)
+            {
+                var store = PsiStore.Create(pipeline, "Bot", this.botSettings.PsiStorePath);
+                //resized.Write("video", store);
+                labelStream.Write("label", store);
+                pipeline.Diagnostics.Write("Diagnostics", store);
+            }
 
             this.pipeline.PipelineExceptionNotHandled += (_, ex) =>
             {
@@ -160,15 +166,15 @@ namespace AI4Bharat.ISLBot.Services.Psi
 
         protected Shared<Image> ProduceScreenShare(string label)
         {
-            var sharedImage = ImagePool.GetOrCreate(this.ScreenShareWidth, this.ScreenShareHeight, PixelFormat.BGRA_32bpp);
-            Bitmap bitmap = new Bitmap(this.ScreenShareWidth, this.ScreenShareHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var sharedImage = ImagePool.GetOrCreate(SCREEN_SHARE_WIDTH, SCREEN_SHARE_HEIGTH, PixelFormat.BGRA_32bpp);
+            Bitmap bitmap = new Bitmap(SCREEN_SHARE_WIDTH, SCREEN_SHARE_HEIGTH, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bitmap);
 
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.Clear(Color.Black);
-            graphics.FillRectangle(Brushes.Black, 10, 10, this.ScreenShareWidth - 10, this.ScreenShareHeight - 10);
+            graphics.FillRectangle(Brushes.Black, 10, 10, SCREEN_SHARE_WIDTH - 10, SCREEN_SHARE_HEIGTH - 10);
             var size = graphics.MeasureString(label, this.font);
-            graphics.DrawString(label, this.font, Brushes.Green, new PointF((this.ScreenShareWidth / 2) - (size.Width / 2), (this.ScreenShareHeight / 2) - (size.Height / 2)));
+            graphics.DrawString(label, this.font, Brushes.Green, new PointF((SCREEN_SHARE_WIDTH / 2) - (size.Width / 2), (SCREEN_SHARE_HEIGTH / 2) - (size.Height / 2)));
             sharedImage.Resource.CopyFrom(bitmap);
             graphics.Dispose();
             return sharedImage;
@@ -217,4 +223,4 @@ namespace AI4Bharat.ISLBot.Services.Psi
             return result;
         }
     }
-}
+} 

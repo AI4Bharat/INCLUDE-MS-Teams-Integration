@@ -3,7 +3,7 @@
 // Licensed under the MIT license.
 // </copyright>
 
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using AI4Bharat.ISLBot.Services.CognitiveServices;
 using Microsoft.Graph.Communications.Common.Telemetry;
 using Microsoft.Psi;

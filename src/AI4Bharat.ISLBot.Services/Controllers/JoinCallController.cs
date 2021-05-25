@@ -5,7 +5,7 @@
 
 using AI4Bharat.ISLBot.Model.Constants;
 using AI4Bharat.ISLBot.Model.Models;
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using AI4Bharat.ISLBot.Services.Bot;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
