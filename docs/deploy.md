@@ -6,6 +6,7 @@
 1. [Microsoft 365 tenant with Teams enabled](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant)
 1. [Azure Virtual Machine - Windows - 4vCPU x 16Gib Memory recommended](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-portal)
 1. [Azure App Service Domain](https://docs.microsoft.com/en-us/azure/app-service/manage-custom-dns-buy-domain#buy-an-app-service-domain)
+1. [Azure Cognitive Speech services](https://azure.microsoft.com/en-in/services/cognitive-services/speech-services/)
 1. A Development Environment (Windows 10)
 
 ## Deployment
@@ -87,6 +88,10 @@
 1. Configure your permissions. Go to Settings page and click on the Manage link near Microsoft App ID. In the new page, click Add button after Application Permissions and select Calls.AccessMedia.All, and then save the change. If your bot also need to join meeting, select Calls.JoinGroupCall.All as well.
 1. The permission needs to be consented by tenant admin. Go to [https://login.microsoftonline.com/common/adminconsent?client_id=<app_id>&state=<any_number>&redirect_uri=<callback_url](https://login.microsoftonline.com/common/adminconsent?client_id=<app_id>&state=<any_number>&redirect_uri=<callback_url) using tenant admin to sign-in, then consent for the whole tenant. - [reference](https://github.com/microsoftgraph/microsoft-graph-comms-samples/tree/master/Samples/V1.0Samples/LocalMediaSamples#getting-started)
 
+### Azure Cognitive Speech services Configuration
+
+1. Get Subscription Key for [Text-to-speech REST API](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech)
+
 ### Deploy Teams Bot in Windows Virtual Machine
 
 1. Publish the Bot code into VM (Ex. `C:\BOT_FTP_PUBLISH`)
@@ -106,7 +111,10 @@
         "InstancePublicPort": 8081,
         "CallSignalingPort": 9441,
         "InstanceInternalPort": 8445,
-        "PlaceCallEndpointUrl": "https://graph.microsoft.com/v1.0"
+        "PlaceCallEndpointUrl": "https://graph.microsoft.com/v1.0",
+        "SpeechSubscriptionKey": "<Subscription Key for Azure Cognitive Speech services>",
+        "SpeechRegion": "centralindia",
+        "SpeechSynthesisVoiceName": "en-IN-NeerjaNeural"
       }
     }
     ```
