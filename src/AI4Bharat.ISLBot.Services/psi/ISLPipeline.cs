@@ -36,8 +36,9 @@ namespace AI4Bharat.ISLBot.Services.Psi
 
         public const int SCREEN_SHARE_WIDTH = 1920;
         public const int SCREEN_SHARE_HEIGTH = 1080;
-        private readonly Font font = new Font(FontFamily.GenericMonospace, 32);
-
+        private readonly Font font = new Font(FontFamily.GenericMonospace, 38);
+        private const string PRIVACY_STATEMENT = "This meeting is being recorded. Read our privacy policy - http://aka.ms/privacy#mainnoticetoendusersmodule";
+        
         public ISLPipeline(
             IGraphLogger logger,
             AzureTextToSpeechSettings ttsSettings,
@@ -119,7 +120,10 @@ namespace AI4Bharat.ISLBot.Services.Psi
                 var store = PsiStore.Create(pipeline, "Bot", this.botSettings.PsiStorePath);
                 //resized.Write("video", store);
                 labelStream.Write("label", store);
-                pipeline.Diagnostics.Write("Diagnostics", store);
+                if (this.botSettings.EnablePsiDiagnostics)
+                {
+                    pipeline.Diagnostics.Write("Diagnostics", store);
+                }
             }
 
             this.pipeline.PipelineExceptionNotHandled += (_, ex) =>
@@ -175,6 +179,8 @@ namespace AI4Bharat.ISLBot.Services.Psi
             graphics.FillRectangle(Brushes.Black, 10, 10, SCREEN_SHARE_WIDTH - 10, SCREEN_SHARE_HEIGTH - 10);
             var size = graphics.MeasureString(label, this.font);
             graphics.DrawString(label, this.font, Brushes.Green, new PointF((SCREEN_SHARE_WIDTH / 2) - (size.Width / 2), (SCREEN_SHARE_HEIGTH / 2) - (size.Height / 2)));
+            size = graphics.MeasureString(PRIVACY_STATEMENT, new Font(FontFamily.GenericMonospace, 20));
+            graphics.DrawString(PRIVACY_STATEMENT, new Font(FontFamily.GenericMonospace, 20), Brushes.Red, new PointF((SCREEN_SHARE_WIDTH / 2) - (size.Width / 2), (SCREEN_SHARE_HEIGTH / 5) - (size.Height / 2)));
             sharedImage.Resource.CopyFrom(bitmap);
             graphics.Dispose();
             return sharedImage;
