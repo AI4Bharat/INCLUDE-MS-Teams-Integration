@@ -21,6 +21,21 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      dotnet --info
+
+#D:\a\1\s\src\AI4Bharat.ISLBot.Services\obj
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      cd $(build.artifactStagingDirectory)
+      ls
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
