@@ -99,6 +99,11 @@
 
     ```json
     {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information"
+        }
+      },
       "AllowedHosts": "*",
       "AzureSettings": {
         "BotName": "<Bot Name, created while Registering a calling bot>",
@@ -115,7 +120,19 @@
         "SpeechSubscriptionKey": "<Subscription Key for Azure Cognitive Speech services>",
         "SpeechRegion": "centralindia",
         "SpeechSynthesisVoiceName": "en-IN-NeerjaNeural"
-      }
+      },
+     "BotSettings": {
+        "PsiStorePath": "E:\\psistore",
+        "RecordingFilePath": "E:\\Recording",
+        "ModelEndpointUrl": "<Model Endpoint URL for inference>",
+        "Resize": {
+            "Width": 480,
+            "Height": 270
+        },
+        "VideoSegmentationIntervalInSeconds": 5,
+        "EnablePsiStore": true,
+        "EnablePsiDiagnostics": false
+     }
     }
     ```
 
