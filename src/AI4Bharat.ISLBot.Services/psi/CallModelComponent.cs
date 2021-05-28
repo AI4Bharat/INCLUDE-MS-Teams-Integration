@@ -4,6 +4,7 @@ using Microsoft.Psi.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -32,8 +33,9 @@ namespace AI4Bharat.ISLBot.Services.Psi
             {
                 // Fire off the request query asynchronously.
                 //f = "local.MOV";
+                
                 var response = await this.client.PostAsync(
-                    $"{endpointUrl}?from_local=True&local_file_path={basePath}&file_name={f}", null);
+                    $"{endpointUrl}?from_local=True&local_file_path={basePath}&file_name={Path.GetFileName(f)}", null);
 
                 response.EnsureSuccessStatusCode();
                 // Read the HTML into a string and start scraping.

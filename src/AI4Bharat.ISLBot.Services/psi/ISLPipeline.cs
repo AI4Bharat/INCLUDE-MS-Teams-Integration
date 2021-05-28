@@ -78,10 +78,11 @@ namespace AI4Bharat.ISLBot.Services.Psi
             var endpointUrl = this.botSettings.ModelEndpointUrl;
             var resized = frameSourceComponent
                 .Video
-                .Select(v => v.First().Value)
+                .Select(v => v.First().Value) // discarding participant id - this means that no information of participant is carried forward
                 .Resize(this.botSettings.Resize.Width, this.botSettings.Resize.Height)
                 .Name("Resized Frames");
-
+            
+            // input is stream of frames
             var fileNames = resized
                 .WriteMP4InBatches(TimeSpan.FromSeconds(this.botSettings.VideoSegmentationIntervalInSeconds), basePath, mpegConfig)
                 .Name("FileNames");
@@ -89,6 +90,7 @@ namespace AI4Bharat.ISLBot.Services.Psi
             var labelStream = fileNames
                 .CallModel(endpointUrl, basePath, logger).Name("Model Result")
                 .Do(l => this.logger.Info($"file: {l.filename} label: {l.label}"));
+            // output is stream of labels
 
             labelStream.Item2()
                 .PerformTextToSpeech(this.ttsSettings, this.logger).Name("Text To Speech")
