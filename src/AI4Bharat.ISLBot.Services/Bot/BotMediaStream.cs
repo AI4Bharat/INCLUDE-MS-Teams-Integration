@@ -11,9 +11,10 @@ using Microsoft.Skype.Bots.Media;
 using Microsoft.Skype.Internal.Media.Services.Common;
 using System;
 using System.Collections.Generic;
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using System.Linq;
 using System.Threading;
+using AI4Bharat.ISLBot.Services.Psi;
 
 namespace AI4Bharat.ISLBot.Services.Bot
 {
@@ -30,7 +31,9 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             { (VideoColorFormat.NV12, 1920, 1080), VideoFormat.NV12_1920x1080_15Fps },
             { (VideoColorFormat.NV12, 1280, 720), VideoFormat.NV12_1280x720_15Fps },
+            { (VideoColorFormat.NV12, 848, 480), VideoFormat.NV12_848x480_30Fps },
             { (VideoColorFormat.NV12, 640, 360), VideoFormat.NV12_640x360_15Fps },
+            { (VideoColorFormat.NV12, 480, 848), VideoFormat.NV12_480x848_30Fps },
             { (VideoColorFormat.NV12, 480, 270), VideoFormat.NV12_480x270_15Fps },
             { (VideoColorFormat.NV12, 424, 240), VideoFormat.NV12_424x240_15Fps },
             { (VideoColorFormat.NV12, 360, 640), VideoFormat.NV12_360x640_15Fps },
@@ -49,13 +52,15 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private readonly IVideoSocket vbssSocket;
         private readonly IVideoSocket mainVideoSocket;
 
-        private readonly string callId;
+        private readonly ICall call;
 
         private readonly List<IVideoSocket> multiViewVideoSockets;
 
         private readonly ILocalMediaSession mediaSession;
         private readonly IGraphLogger logger;
+        private readonly ISLPipeline islPipeline;
         private int shutdown;
+        private MediaSendStatus vbssMediaSendStatus = MediaSendStatus.Inactive;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BotMediaStream" /> class.
@@ -68,22 +73,25 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// <exception cref="InvalidOperationException">A mediaSession needs to have at least an audioSocket</exception>
         public BotMediaStream(
             ILocalMediaSession mediaSession,
-            string callId,
+            ICall call,
             IGraphLogger logger,
-            AzureSettings settings
-        )
+            AzureSettings settings,
+            AzureTextToSpeechSettings ttsSettings,
+            BotSettings botSettings)
             : base(logger)
         {
             ArgumentVerifier.ThrowOnNullArgument(mediaSession, nameof(mediaSession));
             ArgumentVerifier.ThrowOnNullArgument(logger, nameof(logger));
             ArgumentVerifier.ThrowOnNullArgument(settings, nameof(settings));
 
+            this.islPipeline = new ISLPipeline(this.GraphLogger, ttsSettings, botSettings, buffer => SendAudio(buffer), nv12 => SendScreenShare(nv12));
+            islPipeline.CreateAndStartPipeline();
+
             this.mediaSession = mediaSession;
             this.logger = logger;
-
             this.participants = new List<IParticipant>();
 
-            this.callId = callId;
+            this.call = call;
 
             // Subscribe to the audio media.
             this.audioSocket = mediaSession.AudioSocket;
@@ -117,6 +125,12 @@ namespace AI4Bharat.ISLBot.Services.Bot
             }
         }
 
+        private void SendScreenShare(byte[] nv12)
+        {
+            var format = VideoFormatMap[(VideoColorFormat.NV12, 1920, 1080)];
+            this.SendScreen(new VideoSendBuffer(nv12, (uint)nv12.Length, format));
+        }
+
         /// <summary>
         /// Gets the participants.
         /// </summary>
@@ -131,6 +145,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         {
             // Event Dispose of the bot media stream object
             base.Dispose(disposing);
+            this.islPipeline.Dispose();
 
             if (Interlocked.CompareExchange(ref this.shutdown, 1, 1) == 1)
             {
@@ -255,7 +270,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The audio media received arguments.</param>
-        private async void OnAudioMediaReceived(object sender, AudioMediaReceivedEventArgs e)
+        private void OnAudioMediaReceived(object sender, AudioMediaReceivedEventArgs e)
         {
             try
             {
@@ -287,6 +302,18 @@ namespace AI4Bharat.ISLBot.Services.Bot
             {
                 this.logger.Error(ex, $"[OnAudioReceived] Exception while calling audioSocket.Send()");
             }
+            finally
+            {
+                buffer.Dispose();
+            }
+        }
+
+        private void SendAudio(List<AudioMediaBuffer> buffers)
+        {
+            foreach (var buffer in buffers)
+            {
+                SendAudio(buffer);
+            }
         }
         #endregion
 
@@ -313,8 +340,15 @@ namespace AI4Bharat.ISLBot.Services.Bot
         /// </param>
         private void OnVideoMediaReceived(object sender, VideoMediaReceivedEventArgs e)
         {
-            this.logger.Info($"[VideoMediaReceivedEventArgs(Data=<{e.Buffer.Data.ToString()}>, Length={e.Buffer.Length}, Timestamp={e.Buffer.Timestamp}, Width={e.Buffer.VideoFormat.Width}, Height={e.Buffer.VideoFormat.Height}, ColorFormat={e.Buffer.VideoFormat.VideoColorFormat}, FrameRate={e.Buffer.VideoFormat.FrameRate} MediaSourceId={e.Buffer.MediaSourceId})]");
+            // this.logger.Info($"[VideoMediaReceivedEventArgs(Data=<{e.Buffer.Data.ToString()}>, Length={e.Buffer.Length}, Timestamp={e.Buffer.Timestamp}, Width={e.Buffer.VideoFormat.Width}, Height={e.Buffer.VideoFormat.Height}, ColorFormat={e.Buffer.VideoFormat.VideoColorFormat}, FrameRate={e.Buffer.VideoFormat.FrameRate} MediaSourceId={e.Buffer.MediaSourceId})]");
+            var participant = BotMediaStream.GetParticipantFromMSI(this.call, e.Buffer.MediaSourceId);
+            this.islPipeline.OnVideoMediaReceived(e.Buffer, participant.Resource.Info.Identity.User.Id);
             e.Buffer.Dispose();
+        }
+
+        public static IParticipant GetParticipantFromMSI(ICall call, uint msi)
+        {
+            return call.Participants.SingleOrDefault(x => x.Resource.IsInLobby == false && x.Resource.MediaStreams.Any(y => y.SourceId == msi.ToString()));
         }
 
         /// <summary>
@@ -372,6 +406,7 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private void OnVbssSocketSendStatusChanged(object sender, VideoSendStatusChangedEventArgs e)
         {
             this.logger.Info($"[VbssSendStatusChangedEventArgs(MediaSendStatus=<{e.MediaSendStatus};PreferredVideoSourceFormat=<{e.PreferredVideoSourceFormat}>]");
+            this.vbssMediaSendStatus = e.MediaSendStatus;
         }
 
         /// <summary>
@@ -382,6 +417,30 @@ namespace AI4Bharat.ISLBot.Services.Bot
         private void OnVbssMediaStreamFailure(object sender, MediaStreamFailureEventArgs e)
         {
             this.logger.Error($"[VbssOnMediaStreamFailure({e})]");
+        }
+
+        /// <summary>
+        /// Sends a <see cref="VideoMediaBuffer"/> as a shared screen frame to the call from the Bot's video feed.
+        /// </summary>
+        /// <param name="buffer">The video buffer to send.</param>
+        private void SendScreen(VideoMediaBuffer buffer)
+        {
+            // Send the video to our outgoing screen sharing video stream
+            try
+            {
+                if (this.vbssMediaSendStatus == MediaSendStatus.Active)
+                {
+                    this.vbssSocket.Send(buffer);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.Error(ex, $"[OnVideoMediaReceived] Exception while calling vbssSocket.Send()");
+            }
+            //finally
+            //{
+            //    buffer.Dispose();
+            //}
         }
         #endregion
     }

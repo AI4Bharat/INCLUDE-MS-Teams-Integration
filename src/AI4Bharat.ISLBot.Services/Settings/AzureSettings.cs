@@ -12,7 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AI4Bharat.ISLBot.Service.Settings
+namespace AI4Bharat.ISLBot.Services.Settings
 {
     public class AzureSettings
     {
