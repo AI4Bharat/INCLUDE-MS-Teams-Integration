@@ -1,13 +1,16 @@
-# Deployment of Bot
+# Cloud Deployment of Bot
+
+Before this, it's highly recommended to test (and debug) the bot locally to understand the flow.
 
 ## Prerequisite
 
 1. [Azure Subscription](https://azure.microsoft.com/en-in)
-1. [Microsoft 365 tenant with Teams enabled](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant)
-1. [Azure Virtual Machine - Windows - 4vCPU x 16Gib Memory recommended](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-portal)
-1. [Azure App Service Domain](https://docs.microsoft.com/en-us/azure/app-service/manage-custom-dns-buy-domain#buy-an-app-service-domain)
-1. [Azure Cognitive Speech services](https://azure.microsoft.com/en-in/services/cognitive-services/speech-services/)
-1. A Development Environment (Windows 10)
+2. [Microsoft 365 tenant with Teams enabled](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant)
+3. [Azure Virtual Machine - Windows - 4vCPU x 16Gib Memory recommended](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-portal)
+4. [Azure App Service Domain](https://docs.microsoft.com/en-us/azure/app-service/manage-custom-dns-buy-domain#buy-an-app-service-domain)
+5. [Azure Cognitive Speech services](https://azure.microsoft.com/en-in/services/cognitive-services/speech-services/)
+6. A Development Environment (Windows 10)
+7. Inference server hosted on some other server
 
 ## Deployment
 

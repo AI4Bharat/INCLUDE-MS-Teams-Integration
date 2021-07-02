@@ -1,12 +1,8 @@
-# Documentation
+# AI4Bharat Indian Sign Language Bot for Microsoft Teams
 
-## Develop
+An experimental integration of [INCLUDE models](https://github.com/AI4Bharat/INCLUDE) for Indian Sign-Language Recognition with Microsoft Teams Video Meetings.  
 
-1. [Develops and Debug Bot locally](debug.md)
-
-## Deploy & Test
-
-1. [Deploy and Test the Bot](deploy.md)
+Currently supports only Word-Level SLR, with only one signer in the meet.
 
 ## Bot Architecture
 
@@ -15,3 +11,13 @@
 ## Bot Teams Pipeline
 
 ![Teams Pipeline PSI](images/teams_pipeline_psi.png)
+
+## Documentation
+
+### Develop
+
+1. [Develops and Debug Bot locally](debug.md)
+
+### Deploy & Test
+
+1. [Deploy and Test the Bot](deploy.md)

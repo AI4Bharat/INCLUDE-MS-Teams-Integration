@@ -155,7 +155,15 @@ namespace AI4Bharat.ISLBot.Services.Settings
 
                 if (certs.Count != 1)
                 {
-                    throw new Exception($"No certificate with thumbprint {CertificateThumbprint} was found in the machine store.");
+                    if (certs.Count == 0)
+                    {
+                        throw new Exception($"No certificate with thumbprint {CertificateThumbprint} was found in the machine store.");
+                    }
+                    else
+                    {
+                        throw new Exception($"More than 1 certificate with thumbprint {CertificateThumbprint} was found in the machine store.");
+                    }
+                    
                 }
 
                 return certs[0];

@@ -5,7 +5,6 @@ import uvicorn
 from dotenv import load_dotenv
 from INCLUDE.evaluate import inference, get_inference_args
 from fastapi import FastAPI, HTTPException
-from azure.storage.blob import BlobServiceClient
 
 
 logger = logging.getLogger("uvicorn.error")
@@ -19,6 +18,7 @@ load_dotenv()
 az_storage_connection_string = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
 az_storage_container_name = os.environ.get("AZURE_STORAGE_CONTAINER_NAME")
 if az_storage_connection_string and az_storage_container_name:
+    from azure.storage.blob import BlobServiceClient
     blob_service_client = BlobServiceClient.from_connection_string(az_storage_connection_string)
     container_client = blob_service_client.get_container_client(az_storage_container_name)
 
@@ -30,7 +30,7 @@ if az_storage_connection_string and az_storage_container_name:
 
 # You can specify whether to get the videos from blob storage or from local file system 
 # with the "from_local" param.
-@app.post('/inference')
+@app.api_route('/inference', methods=["GET", "POST", "PUT"])
 async def root(file_name: str, local_file_path:str = "", from_local:bool = False):
     if all([from_local, file_name, local_file_path]):
         file_path = os.path.join(local_file_path, file_name)
