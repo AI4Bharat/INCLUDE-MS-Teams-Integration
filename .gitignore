@@ -364,5 +364,3 @@ MigrationBackup/
 FodyWeavers.xsd
 
 cache/
-
-appsettings.json
