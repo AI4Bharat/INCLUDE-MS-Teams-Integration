@@ -1,0 +1,8 @@
+authtoken: YOUR_AUTH_TOKEN
+tunnels:
+    signaling:
+        addr: https://localhost:9441
+        proto: http
+    media:
+        addr: 8445
+        proto: tcp

@@ -17,6 +17,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{BDDB7CB7-3
 		docs\debug.md = docs\debug.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{6739FD34-1509-40C5-B5C9-8CD7E22CEC55}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\ngrok.yml = scripts\ngrok.yml
+		scripts\README.md = scripts\README.md
+		scripts\runngrok.bat = scripts\runngrok.bat
+	EndProjectSection
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4Bharat.ISLBot.Model", "src\AI4Bharat.ISLBot.Model\AI4Bharat.ISLBot.Model.csproj", "{5401253E-6065-485F-BF2D-AE408E6FA604}"
 EndProject
 Global
