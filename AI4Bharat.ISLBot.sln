@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4Bharat.ISLBot.Services", "src\AI4Bharat.ISLBot.Services\AI4Bharat.ISLBot.Services.csproj", "{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4Bharat.ISLBot.Model", "src\AI4Bharat.ISLBot.Model\AI4Bharat.ISLBot.Model.csproj", "{44F74D50-42FE-46F9-9398-91BA34901594}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{556B66EC-B73A-469F-8B76-EB7C7E2D83A3}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -19,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{BDDB7CB7-3
 		docs\debug.md = docs\debug.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI4Bharat.ISLBot.Model", "src\AI4Bharat.ISLBot.Model\AI4Bharat.ISLBot.Model.csproj", "{5401253E-6065-485F-BF2D-AE408E6FA604}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -29,17 +29,21 @@ Global
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Debug|x64.Build.0 = Debug|x64
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Release|x64.ActiveCfg = Release|x64
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582}.Release|x64.Build.0 = Release|x64
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Debug|x64.Build.0 = Debug|Any CPU
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Release|x64.ActiveCfg = Release|Any CPU
-		{44F74D50-42FE-46F9-9398-91BA34901594}.Release|x64.Build.0 = Release|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Debug|x64.Build.0 = Debug|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Release|x64.ActiveCfg = Release|Any CPU
+		{5401253E-6065-485F-BF2D-AE408E6FA604}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EFADEE3C-57AA-487D-8821-DF1D3E5A6582} = {4165241A-93D4-4CE5-BE9E-0E5FCF57851A}
-		{44F74D50-42FE-46F9-9398-91BA34901594} = {4165241A-93D4-4CE5-BE9E-0E5FCF57851A}
+		{5401253E-6065-485F-BF2D-AE408E6FA604} = {4165241A-93D4-4CE5-BE9E-0E5FCF57851A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB37B477-7844-48A9-AB46-51703D94BFDC}

@@ -4,6 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <RootNamespace>AI4Bharat.ISLBot.Services</RootNamespace>
     <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <UserSecretsId>5ee8eb77-8e1d-46bf-b610-f3020c8307d1</UserSecretsId>
   </PropertyGroup>
 
