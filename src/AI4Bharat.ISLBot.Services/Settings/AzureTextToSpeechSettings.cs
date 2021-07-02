@@ -3,7 +3,7 @@
 // Licensed under the MIT license.
 // </copyright>
 
-namespace AI4Bharat.ISLBot.Service.Settings
+namespace AI4Bharat.ISLBot.Services.Settings
 {
     public class AzureTextToSpeechSettings
     {

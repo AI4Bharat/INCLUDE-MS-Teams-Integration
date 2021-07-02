@@ -3,7 +3,7 @@
 // Licensed under the MIT license.
 // </copyright>
 
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using AI4Bharat.ISLBot.Services.CognitiveServices;
 using Microsoft.Graph.Communications.Common.Telemetry;
 using Microsoft.Psi;
@@ -19,7 +19,7 @@ namespace AI4Bharat.ISLBot.Services.Psi
     public static class ComponentExtension
     {
         public static IProducer<string> WriteMP4InBatches(this IProducer<Shared<Image>> source, TimeSpan batchInterval, string basePath, Mpeg4WriterConfiguration mpegConfig)
-        {            
+        {
             var fileNames = Generators.Sequence(
                     source.Out.Pipeline,
                     $@"{basePath}\{DateTime.UtcNow.Ticks}.mp4",
@@ -64,7 +64,7 @@ namespace AI4Bharat.ISLBot.Services.Psi
             return parallel.Out;
         }
         
-        public static IProducer<string> CallModel(this IProducer<string> source, string endpointUrl, string basePath, IGraphLogger logger)
+        public static IProducer<(string filename, string label)> CallModel(this IProducer<string> source, string endpointUrl, string basePath, IGraphLogger logger)
         {
             var callApi = new CallModelComponent(source.Out.Pipeline, endpointUrl, basePath, logger);
             source.PipeTo(callApi, DeliveryPolicy.LatestMessage);

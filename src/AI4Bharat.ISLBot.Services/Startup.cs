@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph.Communications.Common.Telemetry;
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using AI4Bharat.ISLBot.Services.Bot;
 using AI4Bharat.ISLBot.Services.Logging;
 
@@ -33,14 +33,16 @@ namespace AI4Bharat.ISLBot.Services
             services.AddSingleton<IGraphLogger, GraphLogger>(_ => new GraphLogger("AI4Bharat.ISLBot", redirectToTrace: true));
             services.AddSingleton<InMemoryObserver, InMemoryObserver>();
             services.Configure<AzureSettings>(Configuration.GetSection(nameof(AzureSettings)));
-            services.Configure<AzureTextToSpeechSettings>(Configuration.GetSection(nameof(AzureSettings)));
             services.PostConfigure<AzureSettings>(az => az.Initialize());
+            services.Configure<AzureTextToSpeechSettings>(Configuration.GetSection(nameof(AzureSettings)));
+            services.Configure<BotSettings>(Configuration.GetSection(nameof(BotSettings)));
             services.AddSingleton<IBotService, BotService>(provider =>
             {
                 var bot = new BotService(
                     provider.GetRequiredService<IGraphLogger>(),
                     provider.GetRequiredService<IOptions<AzureSettings>>(),
-                    provider.GetRequiredService<IOptions<AzureTextToSpeechSettings>>());
+                    provider.GetRequiredService<IOptions<AzureTextToSpeechSettings>>(),
+                    provider.GetRequiredService<IOptions<BotSettings>>());
                 bot.Initialize();
                 return bot;
             });

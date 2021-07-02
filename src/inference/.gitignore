@@ -1,0 +1,5 @@
+# For inference api
+.env
+downloaded/
+keypoints_dir/
+*.pth

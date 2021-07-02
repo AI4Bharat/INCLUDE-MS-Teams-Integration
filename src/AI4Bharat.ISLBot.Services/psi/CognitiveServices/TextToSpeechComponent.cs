@@ -3,7 +3,7 @@
 // Licensed under the MIT license.
 // </copyright>
 
-using AI4Bharat.ISLBot.Service.Settings;
+using AI4Bharat.ISLBot.Services.Settings;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Graph.Communications.Common.Telemetry;
@@ -37,7 +37,6 @@ namespace AI4Bharat.ISLBot.Services.CognitiveServices
             try
             {
                 var audio = await CreateSpeechByteArray(word);
-                // var buffers = CreateAudioMediaBuffers(DateTime.UtcNow.Ticks, audio);
                 this.Out.Post(audio, envelope.OriginatingTime);
             }
             catch (Exception ex)
