@@ -13,8 +13,8 @@ To debug the bot code locally, you will require setting it up on your local mach
   - This certificate must be installed in your system certificate manager.
 2. Ngrok Account
   - Signup for [ngrok free account](ngrok.com) or login and get auth token.
-3. Azure Speech API key
-4. Run the Inference API as instructed in `src/inference`
+3. Azure Speech API key. ([Follow this tutorial](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/overview#create-the-azure-resource))
+4. Run the Inference API as instructed in `src/inference` and update the endpoint in App Settings JSON.
 
 ### Setting up the code
 1. Install VS Community with ASP.NET while installing
@@ -25,12 +25,22 @@ To debug the bot code locally, you will require setting it up on your local mach
 Register an Azure bot and add "Teams" channel, and give all "Calls"-related permissions. Refer this:  
 https://microsoftgraph.github.io/microsoft-graph-comms-samples/docs/articles/calls/register-calling-bot.html
 
+After providing permissions, go to _Certificates and Secrets_ section, and get the secret _Value_ from the _Client Secrets_ section.
+
 For both meeting hosting tenant as well as bot service domain, tenant admin needs to grant permissions.  
 Go to the following URL (as admins) to give consent:  
 https://login.microsoftonline.com/<TENANT_ID>/adminconsent?client_id=<APP_ID>&state=0&redirect_uri=<BOT_DOMAIN>
 
 - `TENANT_ID` can be obtained from _Overview_ section of _Azure Active Directory_
 - `APP_ID`: Bot ID
+
+
+
+### Installing bot app on your Teams client
+
+Enable _Developer Preview_ in your Microsoft Teams software that you installed locally.  
+Then, create an app on your Teams client and install it as directed here:  
+https://microsoftgraph.github.io/microsoft-graph-comms-samples/docs/articles/calls/register-calling-bot.html#register-bot-in-microsoft-teams
 
 ### Setting up a Virtual Camera
 
@@ -99,7 +109,7 @@ Steps:
     - Update to the `ServiceCname` the ngrok http address (above) 
     - Update the `InstancePublicPort` to ngrok tcp assigned port (above). 
     - `MediaServiceFQDN` is the subdomain URL that is forwared to tcp URL assigned by ngrok (`local.mybot.com` is forwarded to `0.tcp.ngrok.io`).
-    - `CertificateThumbprint` should either be wildcard certificate (from above) or certificate for subdomain you are forwarding from, in this case it�s `*.mybot.com`. If you are using more nested sub domain for CNAME forwarding to ngrok tcp then the certificate should be for 1 domain higher than the nest depth. For example, if your CNAME entry is `0.local.mybot.com` then you need certificate for `*.local.mybot.com`. Having a certificate for `*.mybot.com` does not work.
+    - `CertificateThumbprint` should either be wildcard certificate (from above) or certificate for subdomain you are forwarding from, in this case it's `*.mybot.com`. If you are using more nested sub domain for CNAME forwarding to ngrok tcp then the certificate should be for 1 domain higher than the nest depth. For example, if your CNAME entry is `0.local.mybot.com` then you need certificate for `*.local.mybot.com`. Having a certificate for `*.mybot.com` does not work.
     ```yaml
     "AzureSettings": {
         "BotName": "BOT_NAME",
@@ -130,9 +140,12 @@ Steps:
     raw body exmple
     ```
     {
-    "JoinURL": "https://teams.microsoft.com/l/meetup-join/YOUR_MEETING_ID"
+    "JoinURL": "https://teams.microsoft.com/l/meetup-join/YOUR_MEETING_PAYLOAD"
     }
     ```
+
+    Example Link:  
+    https://teams.microsoft.com/l/meetup-join/19:cd9ce3da56624fe69c9d7cd026f9126d@thread.skype/1509579179399?context={"Tid":"72f988bf-86f1-41af-91ab-2d7cd011db47","Oid":"550fae72-d251-43ec-868c-373732c2704f","MessageId":"1536978844957"}
 
     Make a note of the logs file in the response.  
     You can observe the video being recorded in the log file (https://YOUR_DNS.ngrok.io/logs/YOUR_LOG_FILE)
