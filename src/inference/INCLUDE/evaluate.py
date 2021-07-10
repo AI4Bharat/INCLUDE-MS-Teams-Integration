@@ -112,9 +112,31 @@ class KeypointsDataset(data.Dataset):
         return len(self.files)
 
 
+def get_dataloader(video_paths):
+    save_dir = "keypoints_dir"
+    if os.path.isdir(save_dir):
+        shutil.rmtree(save_dir)
+    os.mkdir(save_dir)
+    for path in tqdm(video_paths, desc="Processing Videos"):
+        process_video(path, save_dir)
+    
+    dataset = KeypointsDataset(
+        keypoints_dir=save_dir,
+        max_frame_len=169,
+    )
+
+    return data.DataLoader(
+        dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=0, # change this to 0 if you get multiprocessing related errors
+        # pin_memory=True,
+    )
+
 @torch.no_grad()
-def inference(dataloader, model, device, label_map):
-    model.eval()
+def inference(video_paths, model, device, label_map):
+
+    dataloader = get_dataloader(video_paths)
     predictions = []
 
     for batch in tqdm(dataloader, desc="Eval"):
@@ -125,30 +147,7 @@ def inference(dataloader, model, device, label_map):
 
     return predictions
 
-# Reused by api
-def get_inference_args(video_paths):
-    save_dir = "keypoints_dir"
-    if os.path.isdir(save_dir):
-        shutil.rmtree(save_dir)
-    os.mkdir(save_dir)
-    for path in tqdm(video_paths, desc="Processing Videos"):
-        process_video(path, save_dir)
-
-    label_map = load_label_map("include")
-    dataset = KeypointsDataset(
-        keypoints_dir=save_dir,
-        max_frame_len=169,
-    )
-
-    dataloader = data.DataLoader(
-        dataset,
-        batch_size=1,
-        shuffle=False,
-        num_workers=4, # change this to 0 if you get multiprocessing related errors
-        pin_memory=True,
-    )
-    label_map = dict(zip(label_map.values(), label_map.keys()))
-
+def get_inference_args():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     config = TransformerConfig(size="large", max_position_embeddings=256)
     model = Transformer(config=config, n_classes=263)
@@ -163,15 +162,18 @@ def get_inference_args(video_paths):
     ckpt = torch.load(pretrained_model_name, map_location=device)
 
     model.load_state_dict(ckpt["model"])
+    model.eval()
     print("### Model loaded ###")
+    
+    label_map = load_label_map("include")
+    label_map = dict(zip(label_map.values(), label_map.keys()))
 
-    params = {
-       "dataloader": dataloader, 
-       "model": model, 
-       "device": device, 
-       "label_map": label_map
+    return {
+        "model": model, 
+        "device": device, 
+        "label_map": label_map
     }
-    return params
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate function")
@@ -179,7 +181,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     video_paths = glob.glob(os.path.join(args.data_dir, "*"))
-    inference_args = get_inference_args(video_paths)
-    preds = inference(**inference_args)
+    inference_args = get_inference_args()
+    preds = inference(video_paths, **inference_args)
 
     print(json.dumps(preds, indent=2))

@@ -14,6 +14,9 @@ container_client = None
 # Load environment variables
 load_dotenv()
 
+# Load model
+inference_args = get_inference_args()
+
 # Set up for azure blob service client if credentials are in env vars
 az_storage_connection_string = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
 az_storage_container_name = os.environ.get("AZURE_STORAGE_CONTAINER_NAME")
@@ -49,8 +52,7 @@ async def root(file_name: str, local_file_path:str = "", from_local:bool = False
         raise HTTPException(status_code=400, detail="Missing required parameters.")
     
     try:
-        inference_args = get_inference_args([file_path])
-        preds = inference(**inference_args)
+        preds = inference(**inference_args, video_paths=[file_path])
         response = {
             "file": file_name,
             "predicted_label": preds[0]["predicted_label"]
